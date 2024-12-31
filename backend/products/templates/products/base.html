@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>{% block title %}SuitsMe{% endblock %}</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #EFD1AF, #EFD1AF);
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: hwb(32 62% 4%);
+            color: white;
+            padding: 15px 30px;
+            font-size: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar .logo {
+            font-size: 28px;
+            font-family: 'Arial Black', sans-serif;
+            text-decoration: none;
+            color: white;
+            transition: color 0.3s ease;
+        }
+
+        .navbar .logo:hover {
+            color: #E0E0E0;
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            margin: 0 30px;
+            position: relative;
+        }
+
+        .search-bar input[type="text"] {
+            width: 100%;
+            max-width: 400px;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+        }
+
+        .search-bar button {
+            background: #4A4A4A;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: -60px;
+            position: relative;
+        }
+
+        .search-bar button:hover {
+            background: #333;
+        }
+
+        #suggestions {
+            position: absolute;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            z-index: 1000;
+            display: none;
+        }
+
+        #suggestions div {
+            padding: 10px;
+            cursor: pointer;
+            color: hsl(0, 0%, 0%);
+        }
+
+        #suggestions div:hover {
+            background-color: #f5f5f5;
+        }
+
+        .navbar .profile-dropdown {
+            position: relative;
+        }
+
+        .profile-icon {
+            cursor: pointer;
+            font-size: 26px;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s ease;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: white;
+            color: black;
+            width: 220px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .dropdown-menu a, .dropdown-menu button {
+            display: block;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: black;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .dropdown-menu button {
+            font: inherit;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <!-- Logo -->
+        <a href="/" class="logo">SuitsMe</a>
+
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Search users...">
+            <div id="suggestions"></div>
+        </div>
+
+        <!-- Profile Dropdown -->
+        <div class="profile-dropdown">
+            <div class="profile-icon">
+                <i class="fa fa-user"></i>
+            </div>
+            <div class="dropdown-menu" id="profileMenu">
+                <a href="/profile/">Profile</a>
+                <a href="{% url 'liked_products' %}">Wardrobe</a>
+                <a href="/about/">About</a>
+                <a href="/review/">Review</a>
+                <form method="POST" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Logout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="containerA">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- Include Font Awesome for icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script>
+        const profileIcon = document.querySelector('.profile-icon');
+        const dropdownMenu = document.querySelector('#profileMenu');
+        const searchInput = document.querySelector('#search-input');
+        const suggestions = document.querySelector('#suggestions');
+
+        profileIcon.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!profileIcon.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.classList.remove('active');
+            }
+        });
+
+        // AJAX Live Search for Usernames
+        searchInput.addEventListener('input', function () {
+            const query = searchInput.value;
+            if (query.length > 1) {
+                fetch(`/autocomplete-users/?q=${query}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        suggestions.innerHTML = '';
+                        suggestions.style.display = data.length ? 'block' : 'none';
+                        data.forEach(user => {
+                            const suggestion = document.createElement('div');
+                            suggestion.textContent = user.username;
+                            suggestion.addEventListener('click', () => {
+                                window.location.href = `/user/${user.username}/wardrobe/`;
+                            });
+                            suggestions.appendChild(suggestion);
+                        });
+                    });
+            } else {
+                suggestions.innerHTML = '';
+                suggestions.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

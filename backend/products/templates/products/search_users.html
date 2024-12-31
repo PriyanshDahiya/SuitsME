@@ -1,0 +1,24 @@
+{% extends 'products/base.html' %}
+
+{% block title %}Search Users{% endblock %}
+
+{% block content %}
+<h2 style="text-align: center;">Search Users</h2>
+<form method="get" action="{% url 'search_users' %}" style="text-align: center;">
+    <input type="text" name="q" placeholder="Search by username" required>
+    <button type="submit">Search</button>
+</form>
+
+{% if users %}
+<div class="product-list">
+    {% for user in users %}
+        <div class="product-card">
+            <h3>{{ user.username }}</h3>
+            <a href="{% url 'user_wardrobe' user.id %}" class="remove-button">View Wardrobe</a>
+        </div>
+    {% endfor %}
+</div>
+{% elif request.GET.q %}
+<p style="text-align: center;">No users found.</p>
+{% endif %}
+{% endblock %}

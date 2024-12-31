@@ -1,0 +1,61 @@
+{% extends 'products/base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<style>
+    .form-container {
+        margin: auto;
+        width: 400px;
+        padding: 20px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        text-align: center;
+    }
+
+    .form-container h2 {
+        margin-bottom: 20px;
+        color: #3d3d3d;
+    }
+
+    .form-container form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .form-container form button {
+        background-color: #3d3d3d;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .form-container form button:hover {
+        background-color: #555555;
+    }
+
+    .form-container a {
+        color: #3d3d3d;
+        text-decoration: none;
+    }
+
+    .form-container a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="form-container">
+    <h2>Login</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Login</button>
+    </form>
+    <p>Don't have an account? <a href="{% url 'signup' %}">Sign up here</a></p>
+</div>
+{% endblock %}

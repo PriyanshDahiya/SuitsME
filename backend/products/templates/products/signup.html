@@ -1,0 +1,95 @@
+{% extends 'products/base.html' %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<style>
+    .form-container {
+        margin: auto;
+        width: 400px;
+        padding: 20px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        text-align: center;
+    }
+
+    .form-container h2 {
+        margin-bottom: 20px;
+        color: #3d3d3d;
+    }
+
+    .form-container form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .form-container form input,
+    .form-container form select {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    .form-container form button {
+        background-color: #3d3d3d;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        font-size: 16px;
+    }
+
+    .form-container form button:hover {
+        background-color: #555555;
+    }
+
+    .form-container a {
+        color: #3d3d3d;
+        text-decoration: none;
+    }
+
+    .form-container a:hover {
+        text-decoration: underline;
+    }
+    .error {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
+}
+</style>
+
+<div class="form-container">
+    <h2>Sign Up</h2>
+    <form method="post">
+        {% csrf_token %}
+        
+        <label for="{{ form.username.id_for_label }}">Username</label>
+        {{ form.username }}
+        {% if form.username.errors %}
+            <div class="error">{{ form.username.errors }}</div>
+        {% endif %}
+        
+        <label for="{{ form.password1.id_for_label }}">Password</label>
+        {{ form.password1 }}
+        {% if form.password1.errors %}
+            <div class="error">{{ form.password1.errors }}</div>
+        {% endif %}
+        
+        <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+        {{ form.password2 }}
+        {% if form.password2.errors %}
+            <div class="error">{{ form.password2.errors }}</div>
+        {% endif %}
+        
+        <button type="submit">Create Account</button>
+    </form>
+    <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+</div>
+
+
+{% endblock %}

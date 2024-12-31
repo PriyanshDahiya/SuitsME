@@ -1,0 +1,15 @@
+{% extends "products/base.html" %}
+
+{% block content %}
+<style>
+    .content-section {
+        margin-top: 80px; /* Adjust this value as needed */
+    }
+</style>
+    <div class="content-section">
+        <h2>You have been logged out</h2>
+        <div class="border-top pt-3">
+            <a href="{% url 'login' %}" class="btn btn-primary">Log In Again</a>
+        </div>
+    </div>
+{% endblock content %}

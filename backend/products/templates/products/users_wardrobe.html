@@ -1,0 +1,157 @@
+{% extends 'products/base.html' %}
+
+{% block title %}{{ user_profile.username }}'s Wardrobe{% endblock %}
+
+{% block content %}
+<style>
+    .product-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 20px;
+        justify-content: center;
+    }
+
+    .product-card {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        background: white;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .product-card img {
+        width: 100%;
+        object-fit: cover;
+        max-height: 200px;
+    }
+
+    .product-card h3 {
+        font-size: 18px;
+        padding: 10px;
+        background: #EFD1AF;
+        color: white;
+        text-align: center;
+    }
+
+    .product-card a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .product-card a:hover {
+        text-decoration: none;
+    }
+
+    .add-button {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+        background: #6EC072;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        border-top: 1px solid #ddd;
+        transition: background 0.3s ease;
+    }
+
+    .add-button:hover {
+        background: #5da463;
+    }
+
+    .add-button.added {
+        background-color: #4CAF50; /* Green color */
+        color: white;
+        font-weight: bold;
+    }
+
+    .add-button.added:disabled {
+        background-color: #45a049;
+        cursor: not-allowed;
+    }
+
+    .empty-message {
+        text-align: center;
+        font-size: 18px;
+        margin: 40px;
+        color: #555;
+    }
+
+    .checkmark {
+        font-size: 18px;
+        margin-left: 10px;
+        color: white;
+    }
+
+    .added-message {
+        font-size: 16px;
+        margin-left: 10px;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const forms = document.querySelectorAll('.add-form');
+
+        forms.forEach((form) => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const button = form.querySelector('button');
+                button.disabled = true; // Disable the button to prevent further clicks
+
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                });
+
+                if (response.ok) {
+                    // Change the button style to show it was added
+                    button.classList.add('added');
+                    button.innerHTML = 'Added to Wardrobe <span class="checkmark">✔</span>';
+
+                    // Optional: Add a success message next to the button
+                    const successMessage = document.createElement('span');
+                    successMessage.classList.add('added-message');
+                    successMessage.textContent = 'Successfully added!';
+                    form.appendChild(successMessage);
+
+                    // Revert button after 2 seconds
+                    setTimeout(() => {
+                        button.innerHTML = 'Add to Wardrobe';
+                        button.classList.remove('added');
+                        button.disabled = false;
+                        successMessage.remove(); // Remove success message
+                    }, 2000);
+                }
+            });
+        });
+    });
+</script>
+
+<h2 style="text-align: center; font-size: 28px; margin-top: 20px; color: white;">{{ user_profile.username }}'s Wardrobe</h2>
+<div class="product-list">
+    {% for liked_product in liked_products %}
+    <div class="product-card">
+        <a href="{{ liked_product.product.product_url }}" target="_blank">
+            <img src="{{ liked_product.product.image_url }}" alt="{{ liked_product.product.name }}">
+            <h3>{{ liked_product.product.name }}</h3>
+        </a>
+        <form class="add-form" method="post" action="{% url 'add_to_wardrobe' liked_product.product.id %}">
+            {% csrf_token %}
+            <button type="submit" class="add-button">Add to Wardrobe</button>
+        </form>
+    </div>
+    {% empty %}
+    <p class="empty-message">{{ user_profile.username }} hasn't liked any products yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}

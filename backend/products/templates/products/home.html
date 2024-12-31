@@ -1,0 +1,412 @@
+{% extends 'products/base.html' %}
+
+{% block title %}SuitsMe{% endblock %}
+
+{% block content %}
+<style>
+    /* Daily Quote Section */
+    .daily-quote-container {
+        display: grid;
+        justify-content: center;
+        width: 100%;
+        margin: 20px;
+        text-align: center;
+    }
+
+    .daily-quote {
+        font-size: 1.8rem;
+        font-style: italic;
+        color: white;
+    }
+
+    /* Main Content Container */
+    .container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        margin: 20px;
+    }
+
+    /* Filter Sidebar */
+    .filter-sidebar {
+        width: 300px;
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        flex-shrink: 0;
+    }
+
+    .filter-sidebar h3 {
+        margin-bottom: 20px;
+        font-size: 24px;
+        color: #333;
+        text-align: center;
+    }
+
+    .filter-section {
+        margin-bottom: 20px;
+    }
+
+    .filter-section h4 {
+        margin-bottom: 10px;
+        font-size: 18px;
+        color: #555;
+    }
+
+    .filter-section input[type="range"] {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    #priceValue {
+        margin-top: 10px;
+        text-align: center;
+        font-size: 16px;
+        color: #222;
+    }
+
+    .apply-filters {
+        display: inline-block;
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        color: #fff;
+        background-color: #007bff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .apply-filters:hover {
+        background-color: #0056b3;
+    }
+
+    /* Product Info */
+    .product-info {
+        width: 300px;
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        flex-shrink: 0;
+    }
+
+    .product-info h3 {
+        margin-bottom: 20px;
+        font-size: 24px;
+        color: #333;
+        text-align: center;
+    }
+
+    .product-info p {
+        font-size: 16px;
+        margin: 10px 0;
+        color: #555;
+    }
+
+    /* Card Container */
+    .card-container {
+        position: relative;
+        width: 100%;
+        max-width: 500px;
+        height: 600px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        flex-direction: column; /* Ensure it stacks vertically on small screens */
+    }
+
+    .card {
+        position: relative;
+        width: 100%;
+        max-width: 500px; /* Max width for larger screens */
+        height: 100%;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    }
+
+    .card.hidden {
+        transform: scale(0.8);
+        opacity: 0;
+        z-index: -1;
+    }
+
+    .card img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        cursor: pointer;
+        transition: transform 0.3s;
+    }
+
+    .card img:hover {
+        transform: scale(1.05);
+    }
+
+    .card h3 {
+        position: absolute;
+        bottom: 10px;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        width: 100%;
+        padding: 10px 0;
+        font-size: 20px;
+        margin: 0;
+    }
+
+    .arrows {
+        position: absolute;
+        top: 50%;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        transform: translateY(-50%);
+    }
+
+    .arrow {
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        font-size: 24px;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        outline: none;
+        transition: background 0.3s ease;
+    }
+
+    .arrow:hover {
+        background: rgba(0, 0, 0, 0.9);
+    }
+
+    /* Product Detail Card */
+    .product-detail-card {
+        width: 100%;
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        margin-top: 20px;
+    }
+
+    .product-detail-card h3 {
+        text-align: center;
+        font-size: 24px;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .product-detail-card p {
+        font-size: 18px;
+        color: #555;
+        margin-bottom: 10px;
+    }
+
+    .product-detail-card .description {
+        font-size: 16px;
+        color: #666;
+        margin-top: 10px;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+        .container {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .filter-sidebar {
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 20px;
+        }
+
+        .product-info {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .card-container {
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .card {
+            width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .arrows {
+            top: 30%; /* Adjust the value to move arrows higher */
+        }
+
+        .arrow {
+            width: 50px; /* Smaller arrow size for mobile */
+            height: 50px;
+            font-size: 20px; /* Adjust the icon size for mobile */
+        }
+    }
+
+    @media (max-width: 480px) {
+        .daily-quote {
+            font-size: 1.4rem;
+        }
+
+        .filter-sidebar {
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .card-container {
+            width: 100%;
+            max-width: 450px;
+            height: auto;
+        }
+
+        .product-detail-card {
+            padding: 15px;
+        }
+    }
+</style>
+
+<!-- Daily Quote Section -->
+<div class="daily-quote-container">
+    <p class="daily-quote">"Swipe right if you like, left if you don't"</p>
+</div>
+
+<!-- Main Content -->
+<div class="container">
+    <aside class="filter-sidebar">
+        <h3>Filters</h3>
+        <form id="filterForm" method="GET">
+            <div class="filter-section">
+                <h4>Price</h4>
+                <input type="range" name="price" min="0" max="10000" step="500" 
+                       value="{{ request.GET.price|default:5000 }}" id="priceRange">
+                <div id="priceValue">₹5000</div>
+            </div>
+            <button type="submit" class="apply-filters">Apply Filters</button>
+        </form>
+    </aside>
+
+    <main class="card-container">
+        {% for product in products %}
+        <div class="card {% if not forloop.first %}hidden{% endif %}" 
+             data-id="{{ product.id }}" 
+             data-name="{{ product.name }}" 
+             data-price="{{ product.price }}" 
+             data-category="{{ product.category }} "
+             data-description="{{ product.description }}">
+            <a href="{{ product.product_url }}" target="_blank">
+                <img src="{{ product.image_url }}" alt="{{ product.name }}">
+            </a>
+            <h3>{{ product.name }}</h3>
+        </div>
+        {% endfor %}
+        <div class="arrows">
+            <button class="arrow" id="leftArrow">&lt;</button>
+            <button class="arrow" id="rightArrow">&gt;</button>
+        </div>
+    </main>
+
+    <aside class="product-info">
+        <h3>Product Details</h3>
+        <div id="productDetails">
+            <p><strong>Name:</strong> <span id="productName">N/A</span></p>
+            <p><strong>Price:</strong> <span id="productPrice">N/A</span></p>
+            <p><strong>Category:</strong> <span id="productCategory">N/A</span></p>
+            <p class="description">Description: <span id="productDescription">{{ products.0.description }}</span></p>
+        </div>
+    </aside>
+</div>
+
+<script>
+    const priceRange = document.getElementById('priceRange');
+    const priceValue = document.getElementById('priceValue');
+    const productName = document.getElementById('productName');
+    const productPrice = document.getElementById('productPrice');
+    const productCategory = document.getElementById('productCategory');
+    const productDescription = document.getElementById('productDescription');
+    const cards = document.querySelectorAll('.card');
+
+    let currentIndex = 0;
+    let offset = 1;  // To track which product to fetch next
+
+    priceRange.addEventListener('input', () => {
+        priceValue.textContent = `₹${priceRange.value}`;
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        priceValue.textContent = `₹${priceRange.value}`;
+        updateProductInfo(cards[currentIndex]);
+    });
+
+    const updateProductInfo = (card) => {
+        productName.textContent = card.dataset.name;
+        productPrice.textContent = `₹${card.dataset.price}`;
+        productCategory.textContent = card.dataset.category;
+        productDescription.textContent = card.dataset.description;
+    };
+
+    const handleAction = (isLike) => {
+        const currentCard = cards[currentIndex];
+        const productId = currentCard.dataset.id;
+
+        fetch('/like-product/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+            body: JSON.stringify({ product_id: productId, is_like: isLike })
+        });
+
+        // Fetch the next product via AJAX
+        fetch(`/get-next-product/?offset=${offset}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.product) {
+                    // Update the card dynamically
+                    currentCard.querySelector('img').src = data.product.image_url;
+                    currentCard.querySelector('h3').textContent = data.product.name;
+                    currentCard.dataset.id = data.product.id;
+                    currentCard.dataset.name = data.product.name;
+                    currentCard.dataset.price = data.product.price;
+                    currentCard.dataset.category = data.product.category;
+                    currentCard.dataset.description = data.product.description;
+                    updateProductInfo(currentCard);
+                } else {
+                    alert('No more products to show.');
+                }
+            });
+
+        offset += 1;
+    };
+
+    document.getElementById('leftArrow').addEventListener('click', () => handleAction(false));
+    document.getElementById('rightArrow').addEventListener('click', () => handleAction(true));
+</script>
+
+
+{% endblock %}
